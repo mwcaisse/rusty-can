@@ -38,9 +38,9 @@ fn main() {
                         println!("not 8 bytes in length :(");
                     }
                     else {
-                        let bit8 = data[7];
+                        let byte8 = data[7];
                 
-                        match bit8 {
+                        match byte8 {
                             0x80 => println!("lights off!"),
                             0x84 => println!("parking lights"),
                             0x8C => println!("full headlights"),
@@ -49,7 +49,39 @@ fn main() {
                         }
                     }
                 }
-                //println!("{:X?}|{:X?}", raw_id, res.data())
+                else if raw_id == 0x140 {
+                    // accelerator pedal pressure
+                }
+                else if raw_id == 0x0D1 {
+                    // vehicle speed
+                    // brake pedal pressure
+                }
+                else if raw_id == 0x0D4 {
+                    // wheel speeds
+                }
+                else if raw_id == 0x375 {
+                    // door locking state
+                }
+                else if raw_id == 0x002 {
+                    // steering wheel position
+                }
+                else if raw_id == 0x281 {
+                    // climate control
+                }
+                else if raw_id == 0x282 {
+                    // seat buckle
+                }
+                else if raw_id == 0x6D1 {
+                    // odometer reading
+                    let data = res.data();
+                    let mut odo: u32 = (data[0] as u32) << 24;
+                    odo += (data[1] as u32) << 16;
+                    odo += (data[2] as u32) << 8;
+                    odo += data[3] as u32;
+                    odo /= 10;
+
+                    println!("Odometer: {}km", odo);
+                }       
             }
             else {
                 println!("Failed to read a frame from the can interface");
