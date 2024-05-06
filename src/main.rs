@@ -32,7 +32,6 @@ fn main() {
                 let data_len = res.len();
              
                 if raw_id == 0x152 {
-                    println!("its id 0x152");
                     //let's check what byte 8 is
                     if data_len != 8 {
                         println!("not 8 bytes in length :(");
@@ -61,9 +60,35 @@ fn main() {
                 }
                 else if raw_id == 0x375 {
                     // door locking state
+
+                    // door open state
+                    let byte2 = data[1];
+                    if byte2 == 0 {
+                        println!("All doors closed")
+                    }
+                    else {
+                        if byte2 & 1 > 0 {
+                            println!("Driver front door open");
+                        }
+                        if byte2 & (1 << 1) > 0 {
+                            println!("Passenger front door open");
+                        }
+                        if byte2 & (1 << 2) > 0 {
+                            println!("Passenger rear door open")
+                        }
+                        if byte2 & (1 << 3) > 0 {
+                            println!("Driver rear door open")
+                        }
+                        if byte2 & (1 << 5) > 0 {
+                            println!("Trunk door open")
+                        }
+                    }
                 }
                 else if raw_id == 0x002 {
                     // steering wheel position
+
+                    let left = ((data[0] as f64) * 255.0 + (data[1] as f64)) / ((26 * 255) as f64);
+                    println!("Steering wheel left: {}  0: {}, 1: {}", left, data[0], data[1]);
                 }
                 else if raw_id == 0x281 {
                     // climate control
@@ -73,15 +98,14 @@ fn main() {
                 }
                 else if raw_id == 0x6D1 {
                     // odometer reading
-                    let data = res.data();
-                    let mut odo: u32 = (data[0] as u32) << 24;
-                    odo += (data[1] as u32) << 16;
-                    odo += (data[2] as u32) << 8;
-                    odo += data[3] as u32;
-                    odo /= 10;
+                    let a = data[3] as u32;
+                    let b = data[2] as u32;
+                    let c = data[1] as u32;
+                    let d= data[0] as u32;
+                    let odo = (a * ( 1 << 24) + b * (1 << 16) + c * (1 << 8) + d) / 10;
 
                     println!("Odometer: {}km", odo);
-                }       
+                }
             }
             else {
                 println!("Failed to read a frame from the can interface");
