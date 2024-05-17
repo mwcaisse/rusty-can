@@ -1,7 +1,11 @@
 use std::{env, process};
+use std::f32::consts::PI;
 use socketcan::{CanSocket, EmbeddedFrame, Frame, Socket, StandardId};
 use socketcan::Id::Standard;
 use eframe::egui;
+use eframe::emath::Rect;
+use egui::epaint::PathShape;
+use egui::{Color32, Pos2, Shape, Stroke};
 
 fn main() {
    // read_some_cans();
@@ -12,13 +16,24 @@ fn create_some_gui() {
     env_logger::init();
 
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([320.2, 240.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 240.0]),
         ..Default::default()
     };
 
     // Application state
     let mut name = "Mitchell".to_owned();
     let mut age = 23;
+
+    let rect = Rect {
+        min: Pos2 {
+            x: 500.0,
+            y: 500.0,
+        },
+        max: Pos2 {
+            x: 200.0,
+            y: 200.0
+        }
+    };
 
     let _ = eframe::run_simple_native("Rusty CAN", options, move |ctx, _frame| {
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -33,10 +48,43 @@ fn create_some_gui() {
                 age += 1;
             }
             ui.label(format!("Hello '{name}', age {age}"));
+
+            let visuals = ui.style().noninteractive();
+
+            ui.painter().add(Shape::Path(PathShape {
+                points: (-45..=225)
+                    .map(|angle: i32| Pos2 {
+                        x: x_f(rect, angle, 180.0),
+                        y: y_f(rect, angle, 180.0),
+                    })
+                    .chain(std::iter::once(center(rect)))
+                    .collect(),
+                closed: true,
+                fill: Color32::YELLOW,
+                stroke: Stroke {
+                    width: 0.0,
+                    color: visuals.bg_fill
+                },
+            }));
         });
     });
 
 
+}
+
+fn x_f( rect: Rect, angle: i32, radius: f32) -> f32 {
+    center(rect).x + (angle as f32 * PI / 180.0).cos() * radius
+}
+
+fn y_f(rect: Rect, angle: i32, radius: f32) -> f32 {
+    center(rect).y - (angle as f32 * PI / 180.0).sin() * radius
+}
+
+fn center(rect: Rect) -> Pos2 {
+    Pos2 {
+        x: rect.left() + rect.width() / 2.0,
+        y: rect.bottom() - rect.height() / 2.0,
+    }
 }
 fn read_some_cans() {
     let args: Vec<String> = env::args().collect();
