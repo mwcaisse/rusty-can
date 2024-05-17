@@ -30,8 +30,8 @@ fn create_some_gui() {
             y: 500.0,
         },
         max: Pos2 {
-            x: 200.0,
-            y: 200.0
+            x: 10.0,
+            y: 20.0
         }
     };
 
@@ -52,10 +52,10 @@ fn create_some_gui() {
             let visuals = ui.style().noninteractive();
 
             ui.painter().add(Shape::Path(PathShape {
-                points: (-45..=225)
+                points: (0..=225)
                     .map(|angle: i32| Pos2 {
-                        x: x_f(rect, angle, 180.0),
-                        y: y_f(rect, angle, 180.0),
+                        x: x_f(rect, angle, 100.0),
+                        y: y_f(rect, angle, 100.0),
                     })
                     .chain(std::iter::once(center(rect)))
                     .collect(),
