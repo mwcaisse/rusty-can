@@ -1,9 +1,44 @@
 use std::{env, process};
 use socketcan::{CanSocket, EmbeddedFrame, Frame, Socket, StandardId};
 use socketcan::Id::Standard;
-
+use eframe::egui;
 
 fn main() {
+   // read_some_cans();
+    create_some_gui();
+}
+
+fn create_some_gui() {
+    env_logger::init();
+
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default().with_inner_size([320.2, 240.0]),
+        ..Default::default()
+    };
+
+    // Application state
+    let mut name = "Mitchell".to_owned();
+    let mut age = 23;
+
+    let _ = eframe::run_simple_native("Rusty CAN", options, move |ctx, _frame| {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.heading("Rusty CAN");
+            ui.horizontal(|ui| {
+                let name_label = ui.label("Your name: ");
+                ui.text_edit_singleline(&mut name)
+                    .labelled_by(name_label.id);
+            });
+            ui.add(egui::Slider::new(&mut age, 0..=120).text("age"));
+            if ui.button("Increment").clicked() {
+                age += 1;
+            }
+            ui.label(format!("Hello '{name}', age {age}"));
+        });
+    });
+
+
+}
+fn read_some_cans() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
@@ -30,7 +65,7 @@ fn main() {
                 };
                 let data = res.data();
                 let data_len = res.len();
-             
+
                 if raw_id == 0x152 {
                     //let's check what byte 8 is
                     if data_len != 8 {
@@ -38,7 +73,7 @@ fn main() {
                     }
                     else {
                         let byte8 = data[7];
-                
+
                         match byte8 {
                             0x80 => println!("lights off!"),
                             0x84 => println!("parking lights"),
@@ -116,5 +151,4 @@ fn main() {
     else {
         println!("Failed to open the socket")
     }
-
 }

@@ -8,3 +8,6 @@ edition = "2018"
 
 [dependencies]
 socketcan = "3.3.0"
+egui = "0.27.2"
+eframe = "0.27.2"
+env_logger = "0.11.3"
